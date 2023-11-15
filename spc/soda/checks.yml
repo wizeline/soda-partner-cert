@@ -1,0 +1,2 @@
+checks for spc.hourly_ev_loads_aggregated:
+  - row_count > 0

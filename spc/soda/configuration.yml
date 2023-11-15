@@ -1,0 +1,10 @@
+data_source minerva:
+  type: duckdb
+  database: minerva.duck
+  read_only: true
+  schema_name: spc
+
+soda_cloud:
+  host: cloud.us.soda.io
+  api_key_id: ${SODA_CLOUD_API_KEY_ID}
+  api_key_secret: ${SODA_CLOUD_API_KEY_SECRET}
