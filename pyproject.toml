@@ -1,0 +1,29 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "soda-partner-cert"
+version = "0.0.1"
+description = "Soda parthership certification"
+authors = ["Enrique Olivares <enrique.olivares@wizeline.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "spc" }]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.11"
+soda-duckdb = { version = "^1.1.14", source = "soda" }
+# dbt-duckdb = "^1.6.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.2"
+
+[[tool.poetry.source]]
+name = "soda"
+url = "https://pypi.cloud.soda.io"
+priority = "primary"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "default"
