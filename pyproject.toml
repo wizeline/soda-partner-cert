@@ -2,10 +2,14 @@
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.dagster]
+module_name = "spc.hermes"
+code_location_name = "SPC / Hermes"
+
 [tool.poetry]
-name = "soda-partner-cert"
+name = "soda-certification"
 version = "0.0.1"
-description = "Soda parthership certification"
+description = "Soda certification"
 authors = ["Enrique Olivares <enrique.olivares@wizeline.com>"]
 license = "MIT"
 readme = "README.md"
@@ -13,8 +17,15 @@ packages = [{ include = "spc" }]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
-soda-duckdb = { version = "^1.1.14", source = "soda" }
-# dbt-duckdb = "^1.6.0"
+urllib3 = "<2.0"
+soda-duckdb = { version = "^1.1.25", source = "soda" }
+soda-scientific = { version = "^1.1.25", source = "soda" }
+dagster = "^1.5.9"
+dagster-webserver = "^1.5.9"
+dagster-dbt = "^0.21.9"
+dagster-duckdb = "^0.21.9"
+dagster-duckdb-pandas = "^0.21.9"
+dbt-duckdb = "^1.7.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
