@@ -1,0 +1,7 @@
+athena:
+  target: local
+  outputs:
+    local:
+      type: duckdb
+      path: /tmp/athena.duck
+      schema: main
