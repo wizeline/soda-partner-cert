@@ -1,8 +1,8 @@
-data_source minerva:
+data_source athena:
   type: duckdb
-  database: minerva.duck
+  database: /tmp/athena.duck
   read_only: true
-  schema_name: spc
+  schema_name: public
 
 soda_cloud:
   host: cloud.us.soda.io

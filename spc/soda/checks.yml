@@ -1,2 +1,75 @@
-checks for spc.hourly_ev_loads_aggregated:
-  - row_count > 0
+# Common metrics for all datasets
+for each dataset populated_table:
+      datasets:
+            - stg_ev_charging_reports
+            - ev_charging_reports
+            - stg_hourly_ev_loads
+            - hourly_ev_loads
+      checks:
+            - row_count > 0:
+                    name: Numeric / Non-Empty Table
+
+checks for ev_charging_reports:
+      - invalid_count(user_id) = 0:
+              name: Validity / User ID Pattern
+              valid regex: ^\w*-\d*$
+      - invalid_count(shared_id) = 0:
+              name: Validity / Shared ID Pattern
+              valid regex: ^Shared-\d*$
+      - invalid_count(user_type) = 0:
+              name: Validity / User Types
+              valid values:
+                    - Private
+                    - Shared
+      - invalid_count(duration_category) = 0:
+              name: Validity / Max Duration Category is Reached
+              filter: duration_hours > 18
+              valid values:
+                    - More than 18 hours
+      - invalid_count(duration_category) = 0:
+              name: Validity / Max Duration Category is not Reached
+              filter: duration_hours <= 18
+              invalid values:
+                    - More than 18 hours
+      - invalid_count(start_plugin_hour) = 0:
+              name: Validity / Start Plugin Hour Value
+              valid min: 0
+              valid max: 23
+      - invalid_count(end_plugout_hour) = 0:
+              name: Validity / End Plugout Hour Value
+              valid min: 0
+              valid max: 23
+      - duplicate_count(session_id) = 0:
+              name: Numeric / Non-duplicate Session IDs
+      - row_count same as stg_ev_charging_reports:
+              name: Cross / Same Row Count as Raw
+      - failed rows:
+              name: Failed Rows / Shared ID is Missing
+              fail condition: user_type = 'Shared' AND shared_id is null
+              samples limit: 10
+#   - distribution_difference(el_kwh) < 0.05:
+#       name: Distribution / El kWh
+#       distribution reference file: ./spc/soda/distribution_reference.yml
+#       method: chi_square
+
+checks for hourly_ev_loads:
+      - max(synthetic_3_6kw) <= 3.6:
+              name: Numeric / Max 3.6 KW for Synthetic
+      - max(synthetic_7_2kw) <= 7.2:
+              name: Numeric / Max 7.2 KW for Synthetic
+      - max(flex_3_6kw) <= 3.6:
+              name: Numeric / Max 3.6 KW for Flex
+      - max(flex_7_2kw) <= 7.2:
+              name: Numeric / Max 7.2 KW for Flex
+      - values in (session_id) must exist in ev_charging_reports (session_id):
+              name: Reference / Sessions Exist in Reports
+      - row_count same as stg_hourly_ev_loads:
+              name: Cross / Same Row Count as Raw
+      - count_not_one_hour_difference:
+              name: User Defined / Time Difference is not 1 Hour
+              count_not_one_hour_difference query: |
+                    select count(1)
+                    from main.hourly_ev_loads
+                    where datediff('hour', date_from, date_to) != 1
+              warn: when > 0
+              fail: when >= 10
