@@ -1,75 +1,94 @@
 # Common metrics for all datasets
 for each dataset populated_table:
-      datasets:
-            - stg_ev_charging_reports
-            - ev_charging_reports
-            - stg_hourly_ev_loads
-            - hourly_ev_loads
-      checks:
-            - row_count > 0:
-                    name: Numeric / Non-Empty Table
+  datasets:
+    - stg_ev_charging_reports
+    - ev_charging_reports
+    - stg_hourly_ev_loads
+    - hourly_ev_loads
+  checks:
+    - row_count > 0:
+        name: Numeric / Non-Empty Table
 
 checks for ev_charging_reports:
-      - invalid_count(user_id) = 0:
-              name: Validity / User ID Pattern
-              valid regex: ^\w*-\d*$
-      - invalid_count(shared_id) = 0:
-              name: Validity / Shared ID Pattern
-              valid regex: ^Shared-\d*$
-      - invalid_count(user_type) = 0:
-              name: Validity / User Types
-              valid values:
-                    - Private
-                    - Shared
-      - invalid_count(duration_category) = 0:
-              name: Validity / Max Duration Category is Reached
-              filter: duration_hours > 18
-              valid values:
-                    - More than 18 hours
-      - invalid_count(duration_category) = 0:
-              name: Validity / Max Duration Category is not Reached
-              filter: duration_hours <= 18
-              invalid values:
-                    - More than 18 hours
-      - invalid_count(start_plugin_hour) = 0:
-              name: Validity / Start Plugin Hour Value
-              valid min: 0
-              valid max: 23
-      - invalid_count(end_plugout_hour) = 0:
-              name: Validity / End Plugout Hour Value
-              valid min: 0
-              valid max: 23
-      - duplicate_count(session_id) = 0:
-              name: Numeric / Non-duplicate Session IDs
-      - row_count same as stg_ev_charging_reports:
-              name: Cross / Same Row Count as Raw
-      - failed rows:
-              name: Failed Rows / Shared ID is Missing
-              fail condition: user_type = 'Shared' AND shared_id is null
-              samples limit: 10
-#   - distribution_difference(el_kwh) < 0.05:
-#       name: Distribution / El kWh
-#       distribution reference file: ./spc/soda/distribution_reference.yml
-#       method: chi_square
+  - invalid_count(user_id) = 0:
+      name: Validity / User ID Pattern
+      valid regex: ^\w*-\d*$
+  - invalid_count(shared_id) = 0:
+      name: Validity / Shared ID Pattern
+      valid regex: ^Shared-\d*$
+  - invalid_count(user_type) = 0:
+      name: Validity / User Types
+      valid values:
+        - Private
+        - Shared
+  - invalid_count(duration_category) = 0:
+      name: Validity / Max Duration Category is Reached
+      filter: duration_hours > 18
+      valid values:
+        - More than 18 hours
+  - invalid_count(duration_category) = 0:
+      name: Validity / Max Duration Category is not Reached
+      filter: duration_hours <= 18
+      invalid values:
+        - More than 18 hours
+  - invalid_count(start_plugin_hour) = 0:
+      name: Validity / Start Plugin Hour Value
+      valid min: 0
+      valid max: 23
+  - invalid_count(end_plugout_hour) = 0:
+      name: Validity / End Plugout Hour Value
+      valid min: 0
+      valid max: 23
+  - duplicate_count(session_id) = 0:
+      name: Numeric / Non-duplicate Session IDs
+  - row_count same as stg_ev_charging_reports:
+      name: Cross / Same Row Count as Raw
+  - failed rows:
+      name: Failed Rows / Shared ID is Missing
+      fail condition: user_type = 'Shared' AND shared_id is null
+      samples limit: 10
+  - distribution_difference(el_kwh, dro__ev_charging_reports__el_kwh) < 0.05:
+      name: Distribution / El kWh
+      distribution reference file: distribution_reference.yml
+      method: ks
+      filter: end_plugout >= '2020-01-01'
+  - user_interval_intersection = 0:
+      name: User Defined / User charge interval intersection
+      user_interval_intersection query: |
+        with _leads as (
+          select session_id,
+            user_id,
+            user_type,
+            row_number() over (partition by user_id order by session_id) user_session_no,
+            start_plugin,
+            end_plugout,
+            lead(start_plugin) over (partition by user_id order by session_id) next_plugin
+          from main.ev_charging_reports
+          order by session_id
+        )
+        select count(1)
+        from _leads
+        where end_plugout > next_plugin
 
 checks for hourly_ev_loads:
-      - max(synthetic_3_6kw) <= 3.6:
-              name: Numeric / Max 3.6 KW for Synthetic
-      - max(synthetic_7_2kw) <= 7.2:
-              name: Numeric / Max 7.2 KW for Synthetic
-      - max(flex_3_6kw) <= 3.6:
-              name: Numeric / Max 3.6 KW for Flex
-      - max(flex_7_2kw) <= 7.2:
-              name: Numeric / Max 7.2 KW for Flex
-      - values in (session_id) must exist in ev_charging_reports (session_id):
-              name: Reference / Sessions Exist in Reports
-      - row_count same as stg_hourly_ev_loads:
-              name: Cross / Same Row Count as Raw
-      - count_not_one_hour_difference:
-              name: User Defined / Time Difference is not 1 Hour
-              count_not_one_hour_difference query: |
-                    select count(1)
-                    from main.hourly_ev_loads
-                    where datediff('hour', date_from, date_to) != 1
-              warn: when > 0
-              fail: when >= 10
+  - max(synthetic_3_6kw) <= 3.6:
+      name: Numeric / Max 3.6 KW for Synthetic
+  - max(synthetic_7_2kw) <= 7.2:
+      name: Numeric / Max 7.2 KW for Synthetic
+  - max(flex_3_6kw) <= 3.6:
+      name: Numeric / Max 3.6 KW for Flex
+  - max(flex_7_2kw) <= 7.2:
+      name: Numeric / Max 7.2 KW for Flex
+  - values in (session_id) must exist in ev_charging_reports (session_id):
+      name: Reference / Sessions Exist in Reports
+  - row_count same as stg_hourly_ev_loads:
+      name: Cross / Same Row Count as Raw
+  - failed rows:
+      name: Failed Rows / Hour range is not 1 Hour
+      # Previously used DATE_DIFF(...) != 1, but had to change this due to
+      # cross-source translation of functions...
+      fail condition: date_add(date_from, interval 1 hour) != date_to
+      warn: when > 0
+      fail: when >= 10
+      samples limit: 10
+      samples columns: [date_from, date_to, user_id, session_id]

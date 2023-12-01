@@ -1,8 +1,18 @@
-data_source athena:
+data_source athena_local:
   type: duckdb
   database: /tmp/athena.duck
   read_only: true
-  schema_name: public
+  schema_name: main
+
+data_source athena_dev:
+  type: bigquery
+  project_id: ${GCP_PROJECT}
+  dataset: enrique_o_cool_dataset
+  use_context_auth: True
+  auth_scopes:
+    - https://www.googleapis.com/auth/bigquery
+    - https://www.googleapis.com/auth/cloud-platform
+    - https://www.googleapis.com/auth/drive
 
 soda_cloud:
   host: cloud.us.soda.io
