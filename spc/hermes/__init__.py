@@ -1,23 +1,13 @@
-from dagster import Definitions, EnvVar
-from dagster_dbt import DbtCliResource
-from dagster_duckdb_pandas import DuckDBPandasIOManager
+import os
 
-from . import assets, jobs
-from .resources.kaggle import KaggleResource
+from dagster import Definitions
+
+from . import assets, jobs, resources
+
+environment = os.getenv("ENVIRONMENT", "local")
 
 defs = Definitions(
     assets=assets.get_assets(),
-    resources={
-        "kaggle": KaggleResource(
-            username=EnvVar("KAGGLE_USERNAME"),
-            password=EnvVar("KAGGLE_KEY"),
-        ),
-        "warehouse_pandas_io": DuckDBPandasIOManager(database="/tmp/athena.duck"),
-        "dbt_optimus": DbtCliResource(
-            profiles_dir="./",
-            project_dir="./spc/optimus",
-            target="local",
-        ),
-    },
+    resources=resources.get_resources(environment),
     jobs=jobs.get_jobs(),
 )
