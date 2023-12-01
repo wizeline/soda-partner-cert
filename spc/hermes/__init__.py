@@ -4,7 +4,7 @@ from dagster import Definitions
 
 from . import assets, jobs, resources
 
-environment = os.getenv("ENVIRONMENT", "local")
+environment = os.getenv("HERMES_ENVIRONMENT", "local")
 
 defs = Definitions(
     assets=assets.get_assets(),
