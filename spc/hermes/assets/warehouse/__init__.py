@@ -6,7 +6,7 @@ from dagster import asset
 from pandas import DataFrame as PandasDF
 
 
-def load_archived_df(archive_bytes: bytes, filename: str) -> PandasDF:
+def _load_archived_df(archive_bytes: bytes, filename: str) -> PandasDF:
     archive = BytesIO(archive_bytes)
     with ZipFile(file=archive, mode="r") as flat:
         with flat.open(filename) as raw:
@@ -15,17 +15,29 @@ def load_archived_df(archive_bytes: bytes, filename: str) -> PandasDF:
     return df
 
 
-@asset(io_manager_key="warehouse_pandas_io", group_name="kaggle", compute_kind="pandas")
+@asset(
+    key_prefix=["kaggle"],
+    group_name="ev_charging",
+    io_manager_key="warehouse_pandas_io",
+    compute_kind="pandas",
+)
 def raw_ev_charging_reports(flat_residential_ev_charging: bytes) -> PandasDF:
-    return load_archived_df(
+    """Raw extract of EV charging reports as Dataframe"""
+    return _load_archived_df(
         flat_residential_ev_charging,
         "archive (34)/Dataset 1_EV charging reports.csv",
     )
 
 
-@asset(io_manager_key="warehouse_pandas_io", group_name="kaggle", compute_kind="pandas")
+@asset(
+    key_prefix=["kaggle"],
+    group_name="ev_charging",
+    io_manager_key="warehouse_pandas_io",
+    compute_kind="pandas",
+)
 def raw_hourly_ev_loads(flat_residential_ev_charging: bytes) -> PandasDF:
-    return load_archived_df(
+    """Raw extract of hourly EV loads as Dataframe"""
+    return _load_archived_df(
         flat_residential_ev_charging,
         "archive (34)/Dataset 2_Hourly EV loads - Per user.csv",
     )

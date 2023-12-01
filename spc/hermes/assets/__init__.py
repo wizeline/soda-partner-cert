@@ -7,9 +7,9 @@ from . import storage, warehouse
 @dbt_assets(
     manifest="./spc/optimus/target/manifest.json",
     dagster_dbt_translator=KeyPrefixDagsterDbtTranslator(
-        asset_key_prefix=["warehouse"],
+        asset_key_prefix=["warehouse", "analytics"],
+        source_asset_key_prefix=["warehouse"],
     ),
-    name="analytics",
 )
 def analytics_assets(context: AssetExecutionContext, dbt_optimus: DbtCliResource):
     yield from dbt_optimus.cli(
