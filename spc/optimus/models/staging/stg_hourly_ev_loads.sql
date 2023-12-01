@@ -1,2 +1,2 @@
 select *
-from {{ source('warehouse', 'raw_hourly_ev_loads') }}
+from {{ source('kaggle', 'raw_hourly_ev_loads') }}

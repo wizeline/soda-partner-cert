@@ -1,0 +1,9 @@
+version: 2
+
+macros:
+  - name: strptime
+    arguments:
+      - name: col
+        type: column name or expression
+      - name: format
+        type: string

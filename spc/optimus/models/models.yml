@@ -1,0 +1,32 @@
+x-common-config: &common-config
+  meta:
+    dagster:
+      group: analytics
+
+version: 2
+
+models:
+  - name: stg_ev_charging_reports
+    description: Staging table of ev_charging_reports, prior to cleansing
+    columns:
+      - name: session_id
+        tests:
+          - not_null
+    config:
+      <<: *common-config
+  - name: stg_hourly_ev_loads
+    description: Staging table of hourly_ev_loads, prior to cleansing
+    config:
+      <<: *common-config
+  - name: ev_charging_reports
+    description: EV charging reports, describing each individual EV charging session
+    columns:
+      - name: session_id
+        tests:
+          - not_null
+    config:
+      <<: *common-config
+  - name: hourly_ev_loads
+    description: Hourly EV charging loads and idle capacity, for all users individually
+    config:
+      <<: *common-config

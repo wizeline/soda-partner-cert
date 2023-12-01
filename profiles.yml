@@ -5,3 +5,9 @@ athena:
       type: duckdb
       path: /tmp/athena.duck
       schema: main
+    development:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('GCP_PROJECT') }}"
+      dataset: enrique_o_cool_dataset
+      threads: 4

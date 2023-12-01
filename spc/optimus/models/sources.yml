@@ -1,7 +1,7 @@
 version: 2
 
 sources:
-  - name: warehouse
+  - name: kaggle
     tables:
       - name: raw_ev_charging_reports
       - name: raw_hourly_ev_loads
