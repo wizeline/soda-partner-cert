@@ -1,4 +1,5 @@
-# Common metrics for all datasets
+# Soda checks configured for all tables through Soda CLI
+# Common checks for all datasets
 for each dataset populated_table:
   datasets:
     - stg_ev_charging_reports
@@ -9,6 +10,7 @@ for each dataset populated_table:
     - row_count > 0:
         name: Numeric / Non-Empty Table
 
+# Checks for post-staging table of ev_charging_reports
 checks for ev_charging_reports:
   - invalid_count(user_id) = 0:
       name: Validity / User ID Pattern
@@ -63,13 +65,14 @@ checks for ev_charging_reports:
             start_plugin,
             end_plugout,
             lead(start_plugin) over (partition by user_id order by session_id) next_plugin
-          from main.ev_charging_reports
+          from ev_charging_reports
           order by session_id
         )
         select count(1)
         from _leads
         where end_plugout > next_plugin
 
+# Checks for post-staging table of hourly_ev_loads
 checks for hourly_ev_loads:
   - max(synthetic_3_6kw) <= 3.6:
       name: Numeric / Max 3.6 KW for Synthetic
