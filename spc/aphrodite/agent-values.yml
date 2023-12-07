@@ -1,0 +1,21 @@
+# Aphrodite soda agent helm values
+soda:
+  agent:
+    name: "aphrodite-agent"
+    pollingIntervall: 5
+  scanlauncher:
+    idle:
+      enabled: true
+      replicas: 2
+    volumeMounts:
+      - name: gcloud-sa-creds
+        mountPath: /opt/soda/etc
+    volumes:
+      - name: gcloud-sa-creds
+        secret:
+          secretName: gcloud-sa-creds
+          items:
+            - key: service_account.json
+              path: service_account.json
+  cloud:
+    endpoint: "https://cloud.us.soda.io"

@@ -1,0 +1,21 @@
+# Checks for Athena Agreement
+checks for ev_charging_reports:
+  - missing_count(session_id) = 0:
+      name: Missing / Session ID is not null
+      attributes:
+        data_quality_dimension: Completeness
+  - missing_count(shared_id) = 0:
+      name: Missing / Missing shared ID
+      attributes:
+        data_quality_dimension: Completeness
+      filter: user_type = "Shared"
+
+checks for hourly_ev_loads:
+  - anomaly score for max(synthetic_3_6kw) < default:
+      name: Anomaly Score / Anomalies when Synthetic KWh is limited to 3.6
+      attributes:
+        data_quality_dimension: Consistency
+  - anomaly score for max(synthetic_7_2kw) < default:
+      name: Anomaly Score / Anomalies when Synthetic KWh is limited to 7.2
+      attributes:
+        data_quality_dimension: Consistency
