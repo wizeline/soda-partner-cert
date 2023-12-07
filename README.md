@@ -45,8 +45,7 @@ poetry run dbt build \
     --profiles-dir ./
 
 # Build dbt models in development environment:
-poetry run dbt build \
-    --target development \
+poetry run dbt build --target development \
     --project-dir ./spc/optimus \
     --profiles-dir ./
 ```
@@ -54,33 +53,27 @@ poetry run dbt build \
 ### Soda Commands
 
 ```bash
-
 # Test connection to local environment:
-poetry run soda test-connection \
-    -d athena_local \
+poetry run soda test-connection -d athena_local \
     -c ./spc/aphrodite/configuration.yml
 
 # Test connection to development environment:
-poetry run soda test-connection \
-    -d athena_development \
+poetry run soda test-connection -d athena_development \
     -c ./spc/aphrodite/configuration.yml
 
 # Build soda ditribution object for el_kwh:
-poetry run soda update-dro \
-    -d athena_local \
+poetry run soda update-dro -d athena_local \
     -n dro__ev_charging_reports__el_kwh \
     -c ./spc/aphrodite/configuration.yml \
     ./spc/aphrodite/distribution_reference.yml
 
 # Run soda scan to local environment:
-poetry run soda scan \
-    -d athena_local \
+poetry run soda scan -d athena_local \
     -c ./spc/aphrodite/configuration.yml \
     ./spc/aphrodite/checks.yml
 
 # Run soda scan to development environment:
-poetry run soda scan \
-    -d athena_development \
+poetry run soda scan -d athena_development \
     -c ./spc/aphrodite/configuration.yml \
     ./spc/aphrodite/checks.yml
 ```
@@ -88,17 +81,45 @@ poetry run soda scan \
 ### Kubernetes commands
 
 ```bash
+# Add soda repo to helm (Done once):
+helm repo add soda-agent https://helm.soda.io/soda-agent/
 
-# Start minikube cluster
+# Start minikube cluster:
 minikube start
 
-# Create soda agent / aphrodite namespace
-kubectl create namespace aphrodite-agent
+# ALT: Start minikube cluster with limited resources:
+minikube start --cpus='2' --memory='4096m'
+
+# Create soda-agent / aphrodite namespace
+kubectl create namespace aphrodite
+
+# Create secret for gcp service account credentials
+kubectl create secret generic gcloud-sa-creds -n aphrodite \
+    --from-file service_account.json=$GCP_SA_JSON_PATH
 
 # Install soda agent in minikube cluster
-helm install soda-agent soda-agent/soda-agent \
+helm install soda-agent soda-agent/soda-agent -n aphrodite \
     --values ./spc/aphrodite/agent-values.yml \
-    --namespace aphrodite-agent
+    --set soda.agent.id=$SODA_AGENT_ID \
+    --set soda.apikey.id=$SODA_AGENT_API_KEY_ID \
+    --set soda.apikey.secret=$SODA_AGENT_API_KEY_SECRET
+
+# Monitor agent status
+kubectl get pods -n aphrodite
+
+# Follow soda orchestrator logs (helps debug api errors)
+kubectl logs -f -n aphrodite \
+    -l agent.soda.io/component=orchestrator
+
+# Follow soda worker logs (helps debug scan errors)
+kubectl logs -f -n aphrodite \
+    -l agent.soda.io/component=scanlauncher
+
+# Delete / stop the soda agent
+helm delete soda-agent -n aphrodite
+
+# Stop minikube cluster
+minikube stop
 ```
 
 ## Sources
