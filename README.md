@@ -1,6 +1,19 @@
 # SPC
 
-Soda Parthership Certification
+This project is used for the Soda Certification program.
+
+## Project Objectives
+
+The objectives of this project are:
+
+- Implement Soda as a Data Quality tool agains a common data product.
+- Build a reference template that uses most of soda's features.
+- Get certified in Soda
+
+Additionally as personal objectives:
+
+- Validate the implementation of Dagster in a multi-environment deployment
+- Validate the implementation of a polyglot dbt project with different technologies.
 
 ## Requirements
 
@@ -11,117 +24,28 @@ Soda Parthership Certification
 - minikube
 - helm
 
+## Architecure
+
+This project is based on a medallion architecture which commonly used in data projects
+
+![architecture](./docs/assets/architecture.png)
+
+All of the components of this architecture have been named, most of them based on the greek mithology:
+
+- **Poseidon**: Storage engine used for staging data assets in its raw format before landing into a raw layer. It is based on local temporary storage and GCS for local and development environments respectively.
+- **Athena**: Warehouse engine used for storing data assets as tables, composes our medallion architecture by including raw, staging and serving layers. It is based on DuckDB and BigQuery for local and development environments respectively.
+- **Optimus**: Transformation engine used for manipulating the data assets and building our models while applying tests to the final datasets. It is based on dbt on all environments
+- **Aphrodite**: Data quality engine used for analyzing the final result of our datasets and validate that it complies with common standards. It is based on Soda on all environments.
+- **Hermes**: Orchestration engine used for communicating all of the components and data sources. It is based on Dagster on all environments.
+
+## Data Sources
+
+- [Kaggle: Residential EV Charging Data](https://www.kaggle.com/datasets/anshtanwar/residential-ev-chargingfrom-apartment-buildings).
+
 ## Useful commands
 
-```bash
-# Read variables / secrets from `.env` file:
-source .env
+A list of useful commands suitable for development can be found [here](./docs/COMMANDS.md).
 
-# Install dependencies via poetry project:
-poetry install
-```
+## Disclaimer
 
-### Dagster Commands
-
-```bash
-# Start dagster Server:
-poetry run dagster dev
-
-# Start dagster development server:
-HERMES_ENVIRONMENT=development poetry run dagster dev
-```
-
-### dbt Commands
-
-```bash
-# Parse dbt project (Builds manifest.json file):
-poetry run dbt parse \
-    --project-dir ./spc/optimus \
-    --profiles-dir ./
-
-# Build dbt models in local environment:
-poetry run dbt build \
-    --project-dir ./spc/optimus \
-    --profiles-dir ./
-
-# Build dbt models in development environment:
-poetry run dbt build --target development \
-    --project-dir ./spc/optimus \
-    --profiles-dir ./
-```
-
-### Soda Commands
-
-```bash
-# Test connection to local environment:
-poetry run soda test-connection -d athena_local \
-    -c ./spc/aphrodite/configuration.yml
-
-# Test connection to development environment:
-poetry run soda test-connection -d athena_development \
-    -c ./spc/aphrodite/configuration.yml
-
-# Build soda ditribution object for el_kwh:
-poetry run soda update-dro -d athena_local \
-    -n dro__ev_charging_reports__el_kwh \
-    -c ./spc/aphrodite/configuration.yml \
-    ./spc/aphrodite/distribution_reference.yml
-
-# Run soda scan to local environment:
-poetry run soda scan -d athena_local \
-    -c ./spc/aphrodite/configuration.yml \
-    ./spc/aphrodite/checks.yml
-
-# Run soda scan to development environment:
-poetry run soda scan -d athena_development \
-    -c ./spc/aphrodite/configuration.yml \
-    ./spc/aphrodite/checks.yml
-```
-
-### Kubernetes commands
-
-```bash
-# Add soda repo to helm (Done once):
-helm repo add soda-agent https://helm.soda.io/soda-agent/
-
-# Start minikube cluster:
-minikube start
-
-# ALT: Start minikube cluster with limited resources:
-minikube start --cpus='2' --memory='4096m'
-
-# Create soda-agent / aphrodite namespace
-kubectl create namespace aphrodite
-
-# Create secret for gcp service account credentials
-kubectl create secret generic gcloud-sa-creds -n aphrodite \
-    --from-file service_account.json=$GCP_SA_JSON_PATH
-
-# Install soda agent in minikube cluster
-helm install soda-agent soda-agent/soda-agent -n aphrodite \
-    --values ./spc/aphrodite/agent-values.yml \
-    --set soda.agent.id=$SODA_AGENT_ID \
-    --set soda.apikey.id=$SODA_AGENT_API_KEY_ID \
-    --set soda.apikey.secret=$SODA_AGENT_API_KEY_SECRET
-
-# Monitor agent status
-kubectl get pods -n aphrodite
-
-# Follow soda orchestrator logs (helps debug api errors)
-kubectl logs -f -n aphrodite \
-    -l agent.soda.io/component=orchestrator
-
-# Follow soda worker logs (helps debug scan errors)
-kubectl logs -f -n aphrodite \
-    -l agent.soda.io/component=scanlauncher
-
-# Delete / stop the soda agent
-helm delete soda-agent -n aphrodite
-
-# Stop minikube cluster
-minikube stop
-```
-
-## Sources
-
-Data was pulled from [Kaggle](https://www.kaggle.com/datasets/anshtanwar/residential-ev-chargingfrom-apartment-buildings).
+The data utilized in this GitHub project is not owned or generated by the developer. It may be subject to different licenses, copyrights, or restrictions. Users are responsible for verifying and complying with the terms of use associated with the data sources used within this project.
