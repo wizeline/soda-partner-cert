@@ -1,7 +1,8 @@
 import uuid
-from typing import Optional
+from typing import Literal, Optional
 
-from dagster import ConfigurableResource, OpExecutionContext
+import requests
+from dagster import ConfigurableResource
 from soda.scan import Scan
 
 
@@ -9,7 +10,7 @@ class ScanError(Exception):
     """Error raised whenever a scan results with failed checks."""
 
 
-class SodaResource(ConfigurableResource):
+class SodaScanResource(ConfigurableResource):
     """Soda resource to run CLI."""
 
     config_file: str
@@ -40,3 +41,45 @@ class SodaResource(ConfigurableResource):
         scan.add_sodacl_yaml_file(self.checks_file)
 
         return scan
+
+
+class SodaReportingResource(ConfigurableResource):
+    """Soda resource to access reporting API"""
+
+    api_key_id: str
+    api_key_secret: str
+    region: str
+
+    @property
+    def base_url(self) -> str:
+        match self.region.upper():
+            case "EU":
+                return "https://reporting.cloud.soda.io/v1/"
+            case "US":
+                return "https://reporting.cloud.us.soda.io/v1/"
+            case _:
+                raise ValueError("Unknown region.")
+
+    def datasets(self) -> dict:
+        return self._make_api_call("/coverage/datasets")
+
+    def datasets_health(self) -> dict:
+        return self._make_api_call("/quality/dataset_health")
+
+    def _make_api_call(self, endpoint: str) -> dict:
+        url = self.base_url + endpoint.lstrip("/")
+        response = requests.post(
+            url=url,
+            headers={
+                "X-API-KEY-ID": self.api_key_id,
+                "X-API-KEY-SECRET": self.api_key_secret,
+            },
+            timeout=60,
+        )
+
+        if response.status_code != 200:
+            raise ValueError(
+                f"Response code is not 200. Received: {response.status_code}"
+            )
+
+        return response.json()

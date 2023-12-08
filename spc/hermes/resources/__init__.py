@@ -8,7 +8,7 @@ from dagster_gcp import GCSPickleIOManager, GCSResource
 from dagster_gcp_pandas import BigQueryPandasIOManager
 
 from .kaggle import KaggleResource
-from .soda import SodaResource
+from .soda import SodaReportingResource, SodaScanResource
 
 
 class Environment(str, Enum):
@@ -31,10 +31,10 @@ def get_resources(
             project_dir="./spc/optimus",
             target=environment,
         ),
-        "soda_": SodaResource(
-            config_file="./spc/soda/configuration.yml",
-            checks_file="./spc/soda/checks.yml",
-            data_source="athena_local",
+        "soda_reporting": SodaReportingResource(
+            api_key_id=EnvVar("SODA_CLOUD_API_KEY_ID"),
+            api_key_secret=EnvVar("SODA_CLOUD_API_KEY_SECRET"),
+            region="US",
         ),
     }
 
@@ -45,6 +45,11 @@ def get_resources(
                 "storage_io": FilesystemIOManager(base_dir="/tmp/poseidon"),
                 "warehouse_pandas_io": DuckDBPandasIOManager(
                     database="/tmp/athena.duck"
+                ),
+                "soda_scan": SodaScanResource(
+                    config_file="./spc/soda/configuration.yml",
+                    checks_file="./spc/soda/checks.yml",
+                    data_source="athena_local",
                 ),
             }
         case Environment.DEV:
@@ -60,6 +65,11 @@ def get_resources(
                 "warehouse_pandas_io": BigQueryPandasIOManager(
                     project=project,
                     temporary_gcs_bucket="enrique-o-cool-bucket",
+                ),
+                "soda_scan": SodaScanResource(
+                    config_file="./spc/soda/configuration.yml",
+                    checks_file="./spc/soda/checks.yml",
+                    data_source="athena_dev",
                 ),
             }
         case _:

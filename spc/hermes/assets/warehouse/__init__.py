@@ -41,3 +41,23 @@ def raw_hourly_ev_loads(flat_residential_ev_charging: bytes) -> PandasDF:
         flat_residential_ev_charging,
         "archive (34)/Dataset 2_Hourly EV loads - Per user.csv",
     )
+
+
+@asset(
+    key_prefix=["soda"],
+    group_name="data_quality",
+    io_manager_key="warehouse_pandas_io",
+    compute_kind="pandas",
+)
+def dataset_coverage(flat_dataset_coverage: dict) -> PandasDF:
+    return PandasDF.from_records(flat_dataset_coverage["data"])
+
+
+@asset(
+    key_prefix=["soda"],
+    group_name="data_quality",
+    io_manager_key="warehouse_pandas_io",
+    compute_kind="pandas",
+)
+def dataset_health(flat_dataset_health: dict) -> PandasDF:
+    return PandasDF.from_records(flat_dataset_health["data"])

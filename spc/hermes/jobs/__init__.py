@@ -1,6 +1,6 @@
 from dagster import AssetSelection, define_asset_job, job, op
 
-from spc.hermes.resources.soda import SodaResource
+from spc.hermes.resources.soda import SodaScanResource
 
 EV_CHARGING_ETL = define_asset_job(
     name="ev_charging_etl",
@@ -13,8 +13,8 @@ EV_CHARGING_ETL = define_asset_job(
 
 
 @op
-def run_soda_scan(soda_: SodaResource):
-    scan = soda_.get_scan()
+def run_soda_scan(soda_scan: SodaScanResource):
+    scan = soda_scan.get_scan()
     _ec = scan.execute()
 
     if _ec != 0:
