@@ -3732,13 +3732,13 @@ files = [
 
 [[package]]
 name = "soda"
-version = "1.1.25"
+version = "1.1.26"
 description = "Soda library & CLI"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "soda-1.1.25-py3-none-any.whl", hash = "sha256:a22dcbad725adf5cb1a508bd2a185d7c191fec4228a1848a86c5876294832f0c"},
-    {file = "soda-1.1.25.tar.gz", hash = "sha256:80ee6a15b3f7f6c7bd2a2c401906d5665d678e712b68ab4fbf2e4096710c1012"},
+    {file = "soda-1.1.26-py3-none-any.whl", hash = "sha256:a61bb8a2fade9d6b1e3cee7c448ce8dd5d6d2fb6ee13eefcda7cfd16757028ee"},
+    {file = "soda-1.1.26.tar.gz", hash = "sha256:f7dd6d08998bd106132e5cdb48775501b229822f49215cdc13d7b1c2d5c2f7ba"},
 ]
 
 [package.dependencies]
@@ -3769,18 +3769,41 @@ reference = "soda"
 
 [[package]]
 name = "soda-bigquery"
-version = "1.1.25"
+version = "1.1.26"
 description = ""
 optional = false
 python-versions = "*"
 files = [
-    {file = "soda-bigquery-1.1.25.tar.gz", hash = "sha256:b96f9b5c44e5f8c2548703c0d1c484755268d4f68f6bc8bfc0f73da6a3ab41c8"},
-    {file = "soda_bigquery-1.1.25-py3-none-any.whl", hash = "sha256:7c41988d0102e067a70356feb737e1c580e2122a3a336cbb4ee4125b1b3603f6"},
+    {file = "soda-bigquery-1.1.26.tar.gz", hash = "sha256:df7782f5c8bbe8ca7f29ffd55cfe07a7918d45e3f3fc9f11106ff27603960b1f"},
+    {file = "soda_bigquery-1.1.26-py3-none-any.whl", hash = "sha256:0cc1b4bd1639ca4204a9ed66e9d0250e5d42b51bdf60d03d250e3797d47548f6"},
 ]
 
 [package.dependencies]
 google-cloud-bigquery = ">=2.25.0,<4.0"
-soda = "1.1.25"
+soda = "1.1.26"
+
+[package.source]
+type = "legacy"
+url = "https://pypi.cloud.soda.io"
+reference = "soda"
+
+[[package]]
+name = "soda-dbt"
+version = "1.1.26"
+description = ""
+optional = false
+python-versions = "*"
+files = [
+    {file = "soda-dbt-1.1.26.tar.gz", hash = "sha256:bdf893c2be4b78c2c062ba58bf578294b5b44cf1c03de7288ef83d6d63d374a5"},
+    {file = "soda_dbt-1.1.26-py3-none-any.whl", hash = "sha256:06906cd24f97129567e37916d7c3659656f3fb740b3a25dfdfae1df83660db3b"},
+]
+
+[package.dependencies]
+soda = "1.1.26"
+
+[package.extras]
+ver15 = ["dbt-core (>=1.5,<1.6)"]
+ver16 = ["dbt-core (>=1.6,<1.7)"]
 
 [package.source]
 type = "legacy"
@@ -3789,18 +3812,18 @@ reference = "soda"
 
 [[package]]
 name = "soda-duckdb"
-version = "1.1.25"
+version = "1.1.26"
 description = ""
 optional = false
 python-versions = "*"
 files = [
-    {file = "soda-duckdb-1.1.25.tar.gz", hash = "sha256:385205df853271b7eeb35aca0542ff893b1a83339583cf60541fa5022d7e1cec"},
-    {file = "soda_duckdb-1.1.25-py3-none-any.whl", hash = "sha256:d03f68dcbcbd33a5ccc457800e8282416bb0394eb24a5ba0986eecff283ef35b"},
+    {file = "soda-duckdb-1.1.26.tar.gz", hash = "sha256:a29642ab8490596516d0c93adba149f5d9921114822917b787c0964e432b6da6"},
+    {file = "soda_duckdb-1.1.26-py3-none-any.whl", hash = "sha256:951552b3bfd649067ca3edd0ec1999a32ea65455106ddc4e1e539aa4430b0efd"},
 ]
 
 [package.dependencies]
 duckdb = "*"
-soda = "1.1.25"
+soda = "1.1.26"
 
 [package.source]
 type = "legacy"
@@ -3830,13 +3853,13 @@ reference = "soda"
 
 [[package]]
 name = "soda-scientific"
-version = "1.1.25"
+version = "1.1.26"
 description = ""
 optional = false
 python-versions = "*"
 files = [
-    {file = "soda-scientific-1.1.25.tar.gz", hash = "sha256:366ccbaf245f9d25da17fb4a6c4a03db61d8b693075732ea1295fc3811547e86"},
-    {file = "soda_scientific-1.1.25-py3-none-any.whl", hash = "sha256:93e2e7ca26435e9869335a28d09c99b90170f7d11b3cf435ab5a8fb4b2cd6d86"},
+    {file = "soda-scientific-1.1.26.tar.gz", hash = "sha256:5adadf22e195ac88565ed634398de7b1cb493029e43e331909f50de85b96ac79"},
+    {file = "soda_scientific-1.1.26-py3-none-any.whl", hash = "sha256:5ddc7ee061ecac91e11d3a6d506c87b73bcbb5ed94228b3d65f6540ecb35094c"},
 ]
 
 [package.dependencies]
@@ -3849,7 +3872,7 @@ prophet = ">=1.1.0,<2.0.0"
 pydantic = ">=1.8.1,<2.0.0"
 PyYAML = ">=5.4.1,<7.0.0"
 scipy = ">=1.8.0"
-soda = "1.1.25"
+soda = "1.1.26"
 wheel = "*"
 
 [package.source]
@@ -4640,4 +4663,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "9db134bac73069abbcdae6425fda80ed2510117d85ff0de0b2a8b4906b6e7b5c"
+content-hash = "c4e748bb66db2d2b5cbc45c919a9ffbd766db58446ba38c995602bafb4c06820"

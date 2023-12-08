@@ -20,6 +20,7 @@ python = ">=3.10,<3.11"
 soda-duckdb = { version = "^1.1.25", source = "soda" }
 soda-bigquery = { version = "^1.1.25", source = "soda" }
 soda-scientific = { version = "^1.1.25", source = "soda" }
+soda-dbt = {extras = ["v16"], version = "^1.1.26", source = "soda"}
 
 [tool.poetry.group.dagster.dependencies]
 urllib3 = "<2.0"
