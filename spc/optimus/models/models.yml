@@ -1,8 +1,11 @@
+# DBT models
+# Common Anchors
 x-common-config: &common-config
   meta:
     dagster:
       group: analytics
 
+# DBT Config
 version: 2
 
 models:
@@ -24,9 +27,19 @@ models:
       - name: session_id
         tests:
           - not_null
+          - unique
+      - name: user_id
+        tests:
+          - not_null
     config:
       <<: *common-config
   - name: hourly_ev_loads
     description: Hourly EV charging loads and idle capacity, for all users individually
+    columns:
+      - name: session_id
+        tests:
+          - relationships:
+              to: ref('ev_charging_reports')
+              field: session_id
     config:
       <<: *common-config
