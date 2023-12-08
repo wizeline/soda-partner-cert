@@ -6,7 +6,7 @@ import duckdb
 import pytest
 import yaml
 
-from spc.hermes.resources.soda import SodaResource
+from spc.hermes.resources.soda import SodaScanResource
 
 Yield = Generator[TypeVar("T"), None, None]
 TEST_DB_PATH = "/tmp/test.duck"
@@ -72,9 +72,9 @@ def checks_filename() -> Yield[str]:
 @pytest.fixture()
 def resource(
     config_filename: str, checks_filename: str, database: str
-) -> Yield[SodaResource]:
+) -> Yield[SodaScanResource]:
     print("Creating test db in path:", database)
-    _r = SodaResource(
+    _r = SodaScanResource(
         config_file=config_filename,
         checks_file=checks_filename,
         data_source=TEST_DATA_SOURCE,
@@ -83,5 +83,5 @@ def resource(
     yield _r
 
 
-def test_soda_resource_scan(resource: SodaResource):
+def test_soda_resource_scan(resource: SodaScanResource):
     resource.scan(is_local=True)
